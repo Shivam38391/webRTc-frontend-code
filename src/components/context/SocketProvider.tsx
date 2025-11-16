@@ -21,12 +21,17 @@ interface SocketProviderProps {
 }
 const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
-    const socket = useMemo(() => io(process.env.NEXT_PUBLIC_SOCKET_URL , {
-        transports: ["websocket"], // ensures stable connection
-      }),
+    // const socket = useMemo(() => io(process.env.NEXT_PUBLIC_SOCKET_URL , {
+    //     transports: ["websocket"], // ensures stable connection
+    //   }),
+
+    const socket = useMemo(() => io("http://localhost:8000",{
+    }),
     
     
     []);
+
+    console.log("socket iod provider", socket)
 
   return (
     <SocketContext.Provider value={socket}>
