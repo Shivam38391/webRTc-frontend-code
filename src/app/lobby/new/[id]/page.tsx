@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
 
 
 export default function RoomPage({ params }: { params: Promise<{ id: string , email : string}> }) {
@@ -20,6 +21,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string , em
 
   const [open, setopen] = useState(false)
 
+
+ const router = useRouter();
 
   const { id  , email} = use(params)
   const [remoteSocketId, setremoteSocketId] = useState<string | null>(null)
@@ -234,151 +237,149 @@ export default function RoomPage({ params }: { params: Promise<{ id: string , em
 
 
   return (
-    <div className=' p-10 bg-pink-800 min-h-screen text-white'>
-      <h2 className=' text-2xl  text-center font-medium'>New page Room</h2>
-      <p className=''>{id}</p>
+    <div className='p-10 bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen text-white'>
+      <div className='max-w-6xl mx-auto'>
+        <h1 className='text-3xl font-bold text-center mb-2'>Video Meeting</h1>
+        <p className='text-center text-slate-400 mb-8'>Room ID: <span className='font-mono text-cyan-400'>{id}</span></p>
 
-Joined as: {email}
-
-      <h4 className=' text-center text-2xl font-bold'>{remoteSocketId ? "connected" : "no one in the room"}</h4>
-
-
-      {
-
-        remoteSocketId &&
-
-        <Button onClick={() => handlecallUser(remoteSocketId ?? undefined)} className=' mx-auto mt-10 flex items-center gap-2' >
-          <PhoneCall />
-          call
-        </Button>
-
-      }
-
-
-
-      {
-
-        myStream &&
-
-        <Button  onClick={sendStream} className=' mx-auto mt-10 flex items-center gap-2' variant="default">
-          <PhoneCall />
-          Send stream
-        </Button>
-
-      }
-
-
-<section className=' grid gap-2 grid-cols-2'>
-
-
-<div>
-
-
-      {
-        myStream &&
-
-        <div className="mt-4">
-          <h2>My stream</h2>
-          <video
-            ref={localVideoRef}
-            playsInline
-            autoPlay
-            className="rounded-md border"
-            width={300}
-            height={240}
-          />
+        <div className='flex justify-center mb-8'>
+          <div className={`px-4 py-2 rounded-full ${remoteSocketId ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}`}>
+            {remoteSocketId ? '🟢 Connected' : '🔴 Waiting for participants'}
+          </div>
         </div>
-      }
-</div>
 
+        <section className='grid gap-6 grid-cols-1 lg:grid-cols-2 mb-8'>
+          <div>
+            {myStream ? (
+              <div className='rounded-lg overflow-hidden border-2 border-cyan-500 shadow-lg shadow-cyan-500/20'>
+                <h3 className='bg-slate-700 px-4 py-2 font-semibold'>Your Video</h3>
+                <video
+                  ref={localVideoRef}
+                  playsInline
+                  autoPlay
+                  muted
+                  className='w-full h-64 bg-black object-cover'
+                />
+              </div>
+            ) : (
+              <div className='h-64 bg-slate-700 rounded-lg border-2 border-dashed border-slate-500 flex items-center justify-center'>
+                <p className='text-slate-400'>Camera off</p>
+              </div>
+            )}
+          </div>
 
-      {
-        remoteStream &&
+          <div>
+            {remoteStream ? (
+              <div className='rounded-lg overflow-hidden border-2 border-purple-500 shadow-lg shadow-purple-500/20'>
+                <h3 className='bg-slate-700 px-4 py-2 font-semibold'>Participant Video</h3>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className='w-full h-64 bg-black object-cover'
+                />
+              </div>
+            ) : (
+              <div className='h-64 bg-slate-700 rounded-lg border-2 border-dashed border-slate-500 flex items-center justify-center'>
+                <p className='text-slate-400'>Waiting for video...</p>
+              </div>
+            )}
+          </div>
+        </section>
 
-        <div className="mt-4">
+        {remoteSocketId && !remoteStream && (
+          <div className='flex justify-center gap-4 mb-8'>
+            <Button 
+              onClick={() => handlecallUser(remoteSocketId ?? undefined)} 
+              className='flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all'
+              disabled={!remoteSocketId}
+            >
+              <PhoneCall size={20} />
+              Start Call
+            </Button>
+          </div>
+        )}
 
-          <h2>Remote stream</h2>
+        {myStream && remoteSocketId && (
+          <div className='flex justify-center gap-4 mb-8'>
+            <Button 
+              onClick={sendStream} 
+              className='flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all'
+            >
+              <PhoneCall size={20} />
+              Share Stream
+            </Button>
+          </div>
+        )}
 
-          {/* <video
-            // ref={remoteVideoRef}
-            src={remoteStream}
-            playsInline
-            autoPlay
-            className="rounded-md  border-amber-200 border-4"
-
-                 width={320}
-            height={240}
-          /> */}
-
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="rounded-md  border-amber-200 border-4"
-
-            width={300}
-            height={240}
-          />
-
-        </div>
-      }
-
-</section>
-
-
-      <Popover open={open}>
-        <PopoverTrigger
-        
-        onClick={() => setopen((prev) => !prev)}
-        className=' absolute bottom-10 left-20'>Open</PopoverTrigger>
-        <PopoverContent>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Your meeting is ready</CardTitle>
-
+        <Popover open={open}>
+          <PopoverTrigger
+            onClick={() => setopen((prev) => !prev)}
+            className='fixed bottom-8 left-8 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-semibold transition-all'
+          >
+            📋 Share Meeting
+          </PopoverTrigger>
+          <PopoverContent className='bg-slate-800 border-slate-700'>
+            <Card className='bg-slate-800 border-slate-700'>
+              <CardHeader>
+                <CardTitle className='text-white'>Share Your Meeting</CardTitle>
+                <CardDescription className='text-slate-400'>
+                  Send this link to invite others
+                </CardDescription>
+              </CardHeader>
               <CardContent>
-
-                <div>
-
-                  <Label>Share this meeting link</Label>
-
-                  <div className=' flex gap-2 items-center'>
-
-                    <Input className=' mt-2 w-full' readOnly value={window.location.href} />
-
-
-                    <Button size={"icon"} className='' onClick={() => {
-                      navigator.clipboard.writeText(window.location.href)
-
-                      toast.success("Meeting link copied to clipboard!", {
-                        duration: 3000
-                      }
-                      )
-                    }}>
-
-                      <Copy className=' ' />
-                    </Button>
-
-                  </div>
-
-
+                <div className='flex gap-2 items-center'>
+                  <Input 
+                    className='bg-slate-700 border-slate-600 text-white' 
+                    readOnly 
+                    value={typeof window !== 'undefined' ? window.location.href : ''} 
+                  />
+                  <Button 
+                    size='icon' 
+                    onClick={() => {
+                      navigator.clipboard.writeText(typeof window !== 'undefined' ? window.location.href : '')
+                      toast.success('Meeting link copied!', { duration: 3000 })
+                    }}
+                    className='bg-cyan-600 hover:bg-cyan-700'
+                  >
+                    <Copy size={18} />
+                  </Button>
                 </div>
-
-
-
               </CardContent>
-
-              <CardDescription>
-                Share the meeting link with others to join.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+            </Card>
+          </PopoverContent>
+        </Popover>
+      </div>
 
 
-        </PopoverContent>
-      </Popover>
 
+<Button
+        onClick={() => {
+          // End call logic here
+          myStream?.getTracks().forEach((track) => track.stop());
+          setStream(null);    
+          setremoteStream(null);
+
+          toast.success("Call ended",
+
+            
+            
+            { duration: 2000 ,
+
+
+              description: `by ${email}`
+            });
+
+    
+          router.push('/lobby');
+
+
+        }}
+        className="fixed bottom-8 right-8 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
+      >
+        End Call
+      </Button> 
+      
     </div>
   )
 }
