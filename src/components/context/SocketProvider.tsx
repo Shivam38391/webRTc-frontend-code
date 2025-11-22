@@ -25,7 +25,7 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     //     transports: ["websocket"], // ensures stable connection
     //   }),
 
-    const socket = useMemo(() => io("http://localhost:8000",{
+    const socket = useMemo(() => io(`https://fllt4050-8000.inc1.devtunnels.ms/` , {
     }),
     
     

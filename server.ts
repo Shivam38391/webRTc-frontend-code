@@ -1,15 +1,20 @@
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import 'dotenv/config'
+// or
+// import dotenv from 'dotenv'
+// dotenv.config()
+
 import type { NextRequest } from "next/server";
 
 import next from "next";
 
 const dev = process.env.NODE_ENV !== "production";
 
-console.log("dev", dev)
-const hostname = 'localhost';
-const port = 3000;
+const hostname = process.env.NEXT_PUBLIC_SOCKET_URL || "localhost";
+const port = parseInt(process.env.NEXT_PUBLIC_SOCKET_PORT || "3000", 10);
 
+console.log("dev prcess env" , process.env.NEXT_PUBLIC_SOCKET_URL , process.env.NEXT_PUBLIC_SOCKET_PORT);
 const app = next({ dev , hostname, port });
 const handle = app.getRequestHandler(); 
 
@@ -86,8 +91,8 @@ io.on("connection", (socket) => {
 });
 
 
-httpServer.listen(8000, () => {
-    console.log("Socket.IO server running at http://localhost:8000/");          
+httpServer.listen(port, () => {
+    console.log("Socket.IO server running at http://%s:%s/", hostname, port);          
     });
     
 })

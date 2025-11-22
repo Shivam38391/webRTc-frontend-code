@@ -1,5 +1,6 @@
 import { WavyBackground } from "@/components/ui/wavy-background";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -12,6 +13,10 @@ export default function Home() {
       <p className="text-base md:text-lg mt-4 text-white font-normal inter-var text-center">
         Leverage the power of canvas to create a beautiful hero section
       </p>
+
+      <Link className=" text-centers" href={"/lobby"}>
+      Lobby form
+      </Link>
     </WavyBackground>
   
     </div>

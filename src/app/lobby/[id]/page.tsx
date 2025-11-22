@@ -3,14 +3,24 @@
 
 import { useSocket } from '@/components/context/SocketProvider'
 import { Button } from '@/components/ui/button'
-import { PhoneCall } from 'lucide-react'
+import { Copy, PhoneCall } from 'lucide-react'
 import { use, useCallback, useEffect, useRef, useState } from 'react'
 import peer from '@/helper/Peer'
 
 import Reactplayer from "react-player";
+import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
+
+
+  const [open, setopen] = useState(true)
+
+
   const { id } = use(params)
   const [remoteSocketId, setremoteSocketId] = useState<string | null>(null)
   const [myStream, setStream] = useState<MediaStream | null>(null)
@@ -27,6 +37,13 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     },
     [],
   )
+
+
+
+
+
+
+
 
 
   const handlecallUser = useCallback(async (id?: string) => {
@@ -67,23 +84,23 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     setStream(stream)
 
     // you can set remote description here using peer connection
-      const ans = await peer.getAnswer(offer)
-      console.log("answer:", ans)
+    const ans = await peer.getAnswer(offer)
+    console.log("answer:", ans)
 
-      socket.emit("call:accepted", {
-        answer: ans,
-        to: from
-      })
+    socket.emit("call:accepted", {
+      answer: ans,
+      to: from
+    })
 
   }, [])
 
 
   const sendStream = useCallback(() => {
-      for (const track of myStream.getTracks()) {
-        peer.peer.addTrack(track, myStream)
-      }     
-      console.log("myStream in sendStream:", myStream)
-    
+    for (const track of myStream.getTracks()) {
+      peer.peer.addTrack(track, myStream)
+    }
+    console.log("myStream in sendStream:", myStream)
+
   }, [myStream])
 
 
@@ -196,8 +213,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   }, [myStream])
 
 
-  
-    const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     if (videoRef.current && remoteStream) {
@@ -207,7 +224,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
 
   return (
-    <div>
+    <div className=' p-10 bg-green-800 min-h-screen text-white'>
       <h2 className=' text-2xl  text-center font-medium'>Room</h2>
       <p className=''>{id}</p>
       <h4 className=' text-center text-2xl font-bold'>{remoteSocketId ? "connected" : "no one in the room"}</h4>
@@ -217,7 +234,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
         remoteSocketId &&
 
-        <Button onClick={() => handlecallUser(remoteSocketId ?? undefined)} className=' mx-auto mt-10 flex items-center gap-2' variant="outline">
+        <Button onClick={() => handlecallUser(remoteSocketId ?? undefined)} className=' mx-auto mt-10 flex items-center gap-2' >
           <PhoneCall />
           call
         </Button>
@@ -230,7 +247,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
         myStream &&
 
-        <Button onClick={sendStream} className=' mx-auto mt-10 flex items-center gap-2' variant="outline">
+        <Button  onClick={sendStream} className=' mx-auto mt-10 flex items-center gap-2' variant="default">
           <PhoneCall />
           Send stream
         </Button>
@@ -238,6 +255,10 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       }
 
 
+<section className=' grid gap-2 grid-cols-2'>
+
+
+<div>
 
 
       {
@@ -250,11 +271,12 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
             playsInline
             autoPlay
             className="rounded-md border"
-            width={320}
+            width={300}
             height={240}
           />
         </div>
       }
+</div>
 
 
       {
@@ -276,19 +298,73 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           /> */}
 
           <video
-      ref={videoRef}
-      autoPlay
-      playsInline
+            ref={videoRef}
+            autoPlay
+            playsInline
             className="rounded-md  border-amber-200 border-4"
 
-                width={320}
+            width={300}
             height={240}
           />
 
         </div>
       }
 
+</section>
 
+
+      <Popover open={open}>
+        <PopoverTrigger
+        
+        onClick={() => setopen((prev) => !prev)}
+        className=' absolute bottom-10 left-20'>Open</PopoverTrigger>
+        <PopoverContent>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Your meeting is ready</CardTitle>
+
+              <CardContent>
+
+                <div>
+
+                  <Label>Share this meeting link</Label>
+
+                  <div className=' flex gap-2 items-center'>
+
+                    <Input className=' mt-2 w-full' readOnly value={window.location.href} />
+
+
+                    <Button size={"icon"} className='' onClick={() => {
+                      navigator.clipboard.writeText(window.location.href)
+
+                      toast.success("Meeting link copied to clipboard!", {
+                        duration: 3000
+                      }
+                      )
+                    }}>
+
+                      <Copy className=' ' />
+                    </Button>
+
+                  </div>
+
+
+                </div>
+
+
+
+              </CardContent>
+
+              <CardDescription>
+                Share the meeting link with others to join.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+
+        </PopoverContent>
+      </Popover>
 
     </div>
   )

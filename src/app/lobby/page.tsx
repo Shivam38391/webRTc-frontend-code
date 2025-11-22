@@ -172,19 +172,11 @@ const LobbyPage = () =>  {
 
 
   const formSchema = z.object({
-  title: z
-    .string()
-    .min(5, "Bug title must be at least 5 characters.")
-    .max(32, "Bug title must be at most 32 characters."),
-  description: z
-    .string()
-    .min(20, "Description must be at least 20 characters.")
-    .max(100, "Description must be at most 100 characters."),
 
 
   
     firstName : z.string().min(2, "First name must be at least 2 characters.").max(30, "First name must be at most 30 characters."),
-    lastName : z.string().min(2, "Last name must be at least 2 characters.").max(30, "Last name must be at most 30 characters."),
+    room : z.string().min(2, "Last name must be at least 2 characters.").max(30, "Last name must be at most 30 characters."),
 
     email : z.email("Enter a valid email address.")
 
@@ -200,8 +192,11 @@ const LobbyPage = () =>  {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      firstName: "",
+
+      room: "",
+
+      email: "",
     },
   })
 
@@ -227,8 +222,9 @@ const LobbyPage = () =>  {
   function onSubmit(data: z.infer<typeof formSchema>) {
 
 
+    const { email , firstName , room } = data
 
-        socket.emit("joinRoom", { email, room })  // Emit joinRoom event with email and room
+        socket.emit("joinRoom", { email, room  })  // Emit joinRoom event with email and room
 
     // // Navigate to a room route passing email as a query param
     const query = new URLSearchParams({ email })
@@ -260,15 +256,7 @@ const LobbyPage = () =>  {
 
     <Card className="w-full sm:max-w-md">
 
-      //         <div className="bg-gradient-to-tr from-blue-400 to-pink-400 rounded-full p-4 mb-4 shadow-lg">
-//         <svg width="48" height="48" fill="none" viewBox="0 0 24 24">
-//           <rect width="24" height="24" rx="12" fill="#fff" />
-//           <path d="M7 10V8a3 3 0 0 1 6 0v2" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/>
-//           <rect x="5" y="10" width="10" height="8" rx="2" stroke="#6366f1" strokeWidth="1.5"/>
-//           <path d="M19 13v2a2 2 0 0 1-2 2h-1" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round"/>
-//           <path d="M19 13l-2-2v6l2-2" stroke="#ec4899" strokeWidth="1.5" strokeLinejoin="round"/>
-//         </svg>
-//         </div>
+      
       <CardHeader>
         <CardTitle>Start an Instant Meeting</CardTitle>
         <CardDescription>
@@ -303,12 +291,12 @@ const LobbyPage = () =>  {
 
 
                         <Controller
-              name="lastName"
+              name="room"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-demo-title">
-                    last Name
+                    room
                   </FieldLabel>
                   <Input
                     {...field}
